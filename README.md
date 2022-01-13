@@ -26,7 +26,7 @@
 >> ```
 
 > # 4. Настраиваем перенаправление заблокированных адресов
->> Создаем файл <b>/var/pro-route/hosts</b> для хранения хостов, которые нужно перенаправлять на vpn
+>> Создаем файл <b>/etc/pro-route/hosts</b> для хранения хостов, которые нужно перенаправлять на vpn
 >> ```
 >> 185.167.98.127  # rutracker.org
 >> 45.132.105.85   # rutracker.org
@@ -44,7 +44,7 @@
 >> rezka.ag
 >> ```
 
->> Создаем скрипт <b>/var/pro-route/apply.sh</b> (добавлет статический маршрут для адресов из файла <b>/var/pro-route/hosts</b>)
+>> Создаем скрипт <b>/etc/pro-route/apply.sh</b> (добавлет статический маршрут для адресов из файла <b>hosts</b>)
 >> ```Shell
 >> #!/bin/bash
 >> 
@@ -53,7 +53,7 @@
 >> 
 >> logger -t pro-route "Add custom routes for '$iface'"
 >> 
->> input="/var/pro-route/hosts"
+>> input="/etc/pro-route/hosts"
 >> 
 >> while IFS= read -r line
 >> do
@@ -65,12 +65,12 @@
 >> done < "$input"
 >> ```
 
->> Даем права на запуск скрипта <b>/var/pro-route/apply.sh</b>
+>> Даем права на запуск скрипта <b>/etc/pro-route/apply.sh</b>
 >> ```Shell
->> chmod +x /var/pro-route/apply.sh
+>> chmod +x /etc/pro-route/apply.sh
 >> ```
 
 >> Добавляем код в <b>/etc/openvpn.user</b>. Скрипт будет выполнятся каждый раз при запуске интерфейса (т.к. при разрыве vpn соединения маршруты сбрасываются).
 >> ```Shell
->> [ "$ACTION" = "up" ] && /bin/sh /var/pro-route/apply.sh tun0
+>> [ "$ACTION" = "up" ] && /bin/sh /etc/pro-route/apply.sh tun0
 >> ```
