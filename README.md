@@ -74,3 +74,60 @@
 >> ```Shell
 >> [ "$ACTION" = "up" ] && /bin/sh /etc/pro-route/apply.sh tun0
 >> ```
+
+> # 5. Настраиваем автопереподключение к vpn
+>> Соединение с vpn может быть установлено, но маршруты не пробрасываться, по этому проверяем через доступ к тестовому ресурсу. Так же проверяем шлюз, через который идет соединение, т.к. провайдер может подменять заблокированный ресурс на заглушку.
+>> 
+>> Создаем скрипт <b>/etc/pro-route/check.sh</b>
+>> ```Shell
+>> #!/bin/bash
+>> log(){
+>>         echo $1
+>>         logger -t pro-route $1
+>> }
+>> 
+>> host="$1"
+>> gate="$2"
+>> if [ -z "$host" ] || [ -z "$gate" ]
+>> then
+>>         log "Bad params."
+>>         exit
+>> fi
+>> 
+>> success=False
+>> i=1
+>> while [ $i -le 3 ]
+>> do
+>>         log "Checking vpn connecton by host '$host' ($i)."
+>>         res=$(/bin/traceroute $host -m 3 -w 3)
+>> 
+>>         if [[ "$res" = *"vpngate"* ]]
+>>         then
+>>                 success=True
+>>                 log "Success"
+>>                 break
+>>         else
+>>                 log "Fail"
+>>         fi
+>> 
+>>         sleep 3
+>>         i=$((i+1))
+>> done
+>> 
+>> if [ $success = False ]
+>> then
+>>         log "Restart vpn"
+>>         /etc/init.d/openvpn restart
+>> fi
+>> ```
+>> 
+>> Даем права на запуск скрипта <b>/etc/pro-route/check.sh</b>
+>> ```Shell
+>> chmod +x /etc/pro-route/check.sh
+>> ```
+>>
+>> Добавляем срипт в планировщик
+>> ```Shell
+>> */10 * * * * /bin/sh /etc/pro-route/check.sh rutracker.org vpngate
+>> ```
+
