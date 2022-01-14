@@ -101,7 +101,7 @@
 >>         log "Checking vpn connecton by host '$host' ($i)."
 >>         res=$(/bin/traceroute $host -m 3 -w 3)
 >> 
->>         if [[ "$res" = *"vpngate"* ]]
+>>         if [[ "$res" = *"$gate"* ]]
 >>         then
 >>                 success=True
 >>                 log "Success"
